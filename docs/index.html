@@ -3,69 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SlideForge - Générateur de Présentations IA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>SlideForge - Créer avec l'IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* === RESET & BASE === */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    /* === AgentBox STYLE VARIABLES === */
+    /* === LIGHT THEME VARIABLES === */
     :root {
-      --bg-primary: #0B0F1A;
-      --bg-panel: #131825;
-      --bg-card: rgba(19, 24, 37, 0.8);
-      --bg-input: rgba(51, 65, 85, 0.5);
+      /* Gamma-inspired gradient background */
+      --bg-gradient: linear-gradient(135deg, #E8F4FD 0%, #F3E8FF 50%, #FDE8F0 100%);
+      
+      /* Light theme colors */
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #FAFBFC;
+      --bg-card: #FFFFFF;
+      --bg-input: #FFFFFF;
       --bg-button: linear-gradient(135deg, #3B82F6, #2563EB);
-      --border: 1px solid rgba(255, 255, 255, 0.06);
-      --border-hover: 1px solid rgba(59, 130, 246, 0.5);
-      --text-primary: #E2E8F0;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
+      
+      /* Borders */
+      --border: 1px solid rgba(0, 0, 0, 0.08);
+      --border-light: 1px solid rgba(0, 0, 0, 0.05);
+      --border-focus: 1px solid #3B82F6;
+      
+      /* Text colors */
+      --text-primary: #1a1a2e;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      
+      /* Accents */
       --accent: #3B82F6;
       --accent-hover: #2563EB;
       --success: #10B981;
       --error: #EF4444;
       --warning: #F59E0B;
-      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-      --glass: rgba(19, 24, 37, 0.8);
-      --glass-blur: blur(12px);
+      --badge-new: #10B981;
+      --badge-soon: #6b7280;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      /* Border radius */
+      --radius-sm: 0.5rem;
+      --radius: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
     }
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--bg-primary);
+      background: var(--bg-gradient);
       color: var(--text-primary);
       line-height: 1.6;
       font-weight: 400;
       overflow-x: hidden;
+      min-height: 100vh;
     }
 
     /* === SCROLLBAR === */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { 
-      background: rgba(255, 255, 255, 0.1); 
+      background: rgba(107, 114, 128, 0.3); 
       border-radius: 3px; 
     }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.3); }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.5); }
 
-    /* === HEADER === */
-    .header {
-      padding: 1rem 2rem;
-      background: var(--glass);
-      backdrop-filter: var(--glass-blur);
-      border-bottom: var(--border);
+    /* === LANDING PAGE === */
+    .landing-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-gradient);
+    }
+
+    /* Header */
+    .landing-header {
+      padding: 1.5rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: var(--shadow);
     }
 
-    .header h1 {
+    .home-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-primary);
+      border: var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .home-btn:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+      background: var(--bg-secondary);
+    }
+
+    .logo {
       font-size: 1.5rem;
       font-weight: 700;
       background: linear-gradient(135deg, var(--accent), #8B5CF6);
@@ -74,19 +119,212 @@
       background-clip: text;
     }
 
+    /* Main content */
+    .landing-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .landing-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .landing-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+      font-weight: 500;
+    }
+
+    /* Cards grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .action-card {
+      background: var(--bg-card);
+      border: var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+
+    .action-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+
+    .action-card:hover::before {
+      opacity: 1;
+    }
+
+    .action-card:nth-child(1)::before {
+      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    }
+
+    .action-card:nth-child(2)::before {
+      background: linear-gradient(135deg, #0F172A 0%, #7C2D12 100%);
+    }
+
+    .action-card:nth-child(3)::before {
+      background: linear-gradient(135deg, #065F46 0%, #0369A1 100%);
+    }
+
+    .action-card:nth-child(4)::before {
+      background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+    }
+
+    .card-icon {
+      position: relative;
+      z-index: 2;
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .card-badge {
+      display: inline-block;
+      background: var(--badge-soon);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-badge.new {
+      background: var(--badge-new);
+    }
+
+    /* === EDITOR PAGE === */
+    .editor-page {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg-secondary);
+    }
+
+    .editor-page.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Editor header */
+    .editor-header {
+      padding: 1.5rem 2rem;
+      background: var(--bg-primary);
+      border-bottom: var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-secondary);
+      border: var(--border);
+      color: var(--text-primary);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--bg-card);
+      transform: translateX(-2px);
+    }
+
+    .editor-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
     .export-btn {
       background: var(--bg-button);
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 0.75rem;
+      border-radius: var(--radius);
       font-weight: 600;
       font-size: 0.875rem;
       cursor: pointer;
       transition: all 0.2s ease;
       opacity: 0.5;
       pointer-events: none;
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .export-btn.enabled { 
@@ -96,27 +334,27 @@
 
     .export-btn:hover.enabled { 
       transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+      box-shadow: var(--shadow-lg);
     }
 
-    /* === MAIN LAYOUT === */
-    .main-container {
+    /* Main editor layout */
+    .editor-container {
+      flex: 1;
       display: grid;
       grid-template-columns: 450px 1fr;
-      min-height: calc(100vh - 80px);
+      min-height: calc(100vh - 90px);
     }
 
     @media (max-width: 1024px) {
-      .main-container { grid-template-columns: 1fr; }
+      .editor-container { grid-template-columns: 1fr; }
     }
 
-    /* === FORM PANEL === */
+    /* Form panel */
     .form-panel {
       padding: 2rem;
-      background: var(--glass);
+      background: var(--bg-primary);
       border-right: var(--border);
       overflow-y: auto;
-      backdrop-filter: var(--glass-blur);
     }
 
     .form-section { 
@@ -127,7 +365,7 @@
       font-size: 1rem; 
       font-weight: 600; 
       margin-bottom: 1rem; 
-      color: var(--accent);
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -149,9 +387,8 @@
       width: 100%;
       padding: 0.875rem 1rem;
       border: var(--border);
-      border-radius: 0.75rem;
+      border-radius: var(--radius);
       background: var(--bg-input);
-      backdrop-filter: var(--glass-blur);
       color: var(--text-primary);
       font-family: inherit;
       font-size: 0.875rem;
@@ -160,9 +397,8 @@
 
     .form-control:focus { 
       outline: none; 
-      border: var(--border-hover);
+      border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-      background: rgba(51, 65, 85, 0.7);
     }
 
     textarea.form-control { 
@@ -182,19 +418,18 @@
       width: 60px; 
       height: 45px; 
       border: var(--border); 
-      border-radius: 0.75rem; 
+      border-radius: var(--radius); 
       cursor: pointer;
       background: transparent;
     }
 
-    /* === DRAG & DROP ZONE === */
+    /* Drag & drop zone */
     .drop-zone {
       border: 2px dashed rgba(59, 130, 246, 0.3);
-      border-radius: 0.75rem;
+      border-radius: var(--radius);
       padding: 2rem;
       text-align: center;
       background: rgba(59, 130, 246, 0.05);
-      backdrop-filter: var(--glass-blur);
       cursor: pointer;
       transition: all 0.2s ease;
       margin-bottom: 1rem;
@@ -215,6 +450,7 @@
     .drop-zone-text {
       color: var(--text-secondary);
       font-size: 0.875rem;
+      font-weight: 500;
     }
 
     .drop-zone-subtext {
@@ -233,9 +469,9 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.75rem;
-      background: var(--bg-card);
-      border: var(--border);
-      border-radius: 0.5rem;
+      background: var(--bg-secondary);
+      border: var(--border-light);
+      border-radius: var(--radius-sm);
       margin-bottom: 0.5rem;
     }
 
@@ -254,6 +490,7 @@
     .file-name {
       font-size: 0.875rem;
       color: var(--text-primary);
+      font-weight: 500;
     }
 
     .file-size {
@@ -275,14 +512,14 @@
       background: rgba(239, 68, 68, 0.1);
     }
 
-    /* === BUTTONS === */
+    /* Buttons */
     .generate-btn, .btn-primary {
       width: 100%;
       background: var(--bg-button);
       color: white;
       border: none;
       padding: 1rem 1.5rem;
-      border-radius: 0.75rem;
+      border-radius: var(--radius);
       font-size: 0.875rem;
       font-weight: 600;
       cursor: pointer;
@@ -292,12 +529,12 @@
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow);
     }
 
     .generate-btn:hover:not(:disabled), .btn-primary:hover:not(:disabled) { 
       transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+      box-shadow: var(--shadow-lg);
     }
 
     .generate-btn:disabled, .btn-primary:disabled { 
@@ -317,17 +554,16 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* === PREVIEW PANEL === */
+    /* Preview panel */
     .preview-panel {
-      background: var(--bg-primary);
+      background: var(--bg-secondary);
       display: flex;
       flex-direction: column;
     }
 
     .preview-header {
       padding: 1.5rem 2rem;
-      background: var(--glass);
-      backdrop-filter: var(--glass-blur);
+      background: var(--bg-primary);
       border-bottom: var(--border);
       display: flex;
       justify-content: space-between;
@@ -346,12 +582,11 @@
     }
 
     .nav-btn {
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
+      background: var(--bg-secondary);
       border: var(--border);
       color: var(--text-primary);
       padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       font-size: 0.875rem;
       font-weight: 500;
@@ -359,8 +594,8 @@
     }
 
     .nav-btn:hover:not(:disabled) { 
-      background: rgba(59, 130, 246, 0.1);
-      border-color: rgba(59, 130, 246, 0.3);
+      background: var(--bg-card);
+      border-color: var(--accent);
       color: var(--accent);
     }
 
@@ -369,14 +604,14 @@
       cursor: not-allowed; 
     }
 
-    /* === SLIDE VIEWER === */
+    /* Slide viewer */
     .preview-container {
       flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 2rem;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.02), rgba(139, 92, 246, 0.02));
+      background: var(--bg-secondary);
     }
 
     .slide-viewer {
@@ -384,11 +619,11 @@
       max-width: 1000px;
       aspect-ratio: 16/9;
       background: white;
-      border-radius: 1rem;
-      box-shadow: var(--shadow);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
       overflow: hidden;
       position: relative;
-      border: var(--border);
+      border: var(--border-light);
     }
 
     .slide { 
@@ -410,7 +645,7 @@
       justify-content: center;
       align-items: center;
       height: 100%;
-      background: linear-gradient(135deg, var(--bg-panel), rgba(59, 130, 246, 0.05));
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.02), rgba(139, 92, 246, 0.02));
       color: var(--text-secondary);
       text-align: center;
       padding: 2rem;
@@ -433,10 +668,10 @@
       color: var(--text-muted);
     }
 
-    /* === MESSAGES === */
+    /* Messages */
     .message {
       padding: 1rem;
-      border-radius: 0.75rem;
+      border-radius: var(--radius);
       margin-top: 1rem;
       font-size: 0.875rem;
       display: flex;
@@ -446,20 +681,20 @@
 
     .error-message { 
       background: rgba(239, 68, 68, 0.1); 
-      border: 1px solid rgba(239, 68, 68, 0.3); 
-      color: #FCA5A5; 
+      border: 1px solid rgba(239, 68, 68, 0.2); 
+      color: var(--error); 
     }
 
     .success-message { 
       background: rgba(16, 185, 129, 0.1); 
-      border: 1px solid rgba(16, 185, 129, 0.3); 
-      color: #86EFAC; 
+      border: 1px solid rgba(16, 185, 129, 0.2); 
+      color: var(--success); 
     }
 
     .info-message {
       background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #93C5FD;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent);
     }
 
     /* === SLIDE STYLES (preserved from original) === */
@@ -545,124 +780,218 @@
 
     /* === RESPONSIVE === */
     @media (max-width: 1024px) {
-      .main-container { grid-template-columns: 1fr; }
+      .editor-container { grid-template-columns: 1fr; }
       .form-panel { border-right: none; border-bottom: var(--border); }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+      }
+      
+      .landing-title {
+        font-size: 2.5rem;
+      }
     }
 
     @media (max-width: 640px) {
-      .header { padding: 1rem; }
-      .form-panel, .preview-container { padding: 1rem; }
-      .slide-viewer { margin: 0; }
+      .landing-header, .editor-header { 
+        padding: 1rem; 
+      }
+      
+      .landing-main {
+        padding: 1rem;
+      }
+      
+      .landing-title {
+        font-size: 2rem;
+      }
+      
+      .landing-subtitle {
+        font-size: 1.125rem;
+      }
+      
+      .action-card {
+        padding: 1.5rem;
+      }
+      
+      .form-panel, .preview-container { 
+        padding: 1rem; 
+      }
+      
+      .slide-viewer { 
+        margin: 0; 
+      }
     }
   </style>
 </head>
 <body>
-  <header class="header">
-    <h1>SlideForge</h1>
-    <button id="exportBtn" class="export-btn">📥 Exporter PDF</button>
-  </header>
+  <!-- LANDING PAGE -->
+  <div class="landing-page" id="landingPage">
+    <header class="landing-header">
+      <div class="logo">SlideForge</div>
+      <a href="#" class="home-btn">
+        <span>🏠</span>
+        Accueil
+      </a>
+    </header>
 
-  <div class="main-container">
-    <div class="form-panel">
-      <form id="slideForm">
-        <!-- Import Section -->
-        <div class="form-section">
-          <h3>📁 Import de fichiers</h3>
-          <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-icon">📂</div>
-            <div class="drop-zone-text">Glissez-déposez vos fichiers ici</div>
-            <div class="drop-zone-subtext">PDF, Word, Markdown, Images, TXT</div>
-            <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.md,.txt,.png,.jpg,.jpeg" style="display: none;">
-          </div>
-          <div class="file-list" id="fileList"></div>
-        </div>
+    <main class="landing-main">
+      <h1 class="landing-title">Créer avec l'IA</h1>
+      <p class="landing-subtitle">Par où souhaitez-vous commencer ?</p>
 
-        <!-- Content Section -->
-        <div class="form-section">
-          <h3>📝 Contenu</h3>
-          <div class="form-group">
-            <label for="content">Texte de la présentation</label>
-            <textarea id="content" class="form-control" placeholder="Décrivez votre présentation : points clés, objectifs, données importantes...&#10;&#10;Le texte des fichiers importés sera ajouté automatiquement ici." required></textarea>
+      <div class="cards-grid">
+        <div class="action-card" data-mode="generate">
+          <div class="card-icon">✨</div>
+          <div class="card-content">
+            <h3 class="card-title">Générer</h3>
+            <p class="card-description">Créez une présentation en quelques secondes à partir d'une description</p>
           </div>
         </div>
 
-        <!-- Brand Section -->
-        <div class="form-section">
-          <h3>🎨 Identité visuelle</h3>
-          <div class="form-group">
-            <label for="company">Nom de l'entreprise</label>
-            <input type="text" id="company" class="form-control" placeholder="Pixel Drop">
-          </div>
-          <div class="form-group">
-            <label for="logo">URL du logo</label>
-            <input type="url" id="logo" class="form-control" placeholder="https://exemple.com/logo.png">
-          </div>
-          <div class="form-group">
-            <label for="primaryColor">Couleur primaire</label>
-            <div class="color-input">
-              <input type="text" id="primaryColorText" class="form-control" value="#1a1a2e">
-              <input type="color" id="primaryColor" class="color-picker" value="#1a1a2e">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="secondaryColor">Couleur secondaire</label>
-            <div class="color-input">
-              <input type="text" id="secondaryColorText" class="form-control" value="#16213e">
-              <input type="color" id="secondaryColor" class="color-picker" value="#16213e">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="font">Police</label>
-            <select id="font" class="form-control">
-              <option value="Inter">Inter (moderne)</option>
-              <option value="Arial">Arial (classique)</option>
-              <option value="Roboto">Roboto (tech)</option>
-              <option value="Montserrat">Montserrat (élégant)</option>
-              <option value="Open Sans">Open Sans (lisible)</option>
-            </select>
+        <div class="action-card" data-mode="paste">
+          <div class="card-icon">Aa</div>
+          <div class="card-content">
+            <h3 class="card-title">Coller du texte</h3>
+            <p class="card-description">Créez à partir de notes, d'un plan ou d'un contenu existant</p>
           </div>
         </div>
 
-        <!-- Style Section -->
-        <div class="form-section">
-          <h3>✨ Style</h3>
-          <div class="form-group">
-            <label for="tone">Ton</label>
-            <select id="tone" class="form-control">
-              <option value="professionnel">Professionnel</option>
-              <option value="corporate">Corporate</option>
-              <option value="startup">Startup</option>
-              <option value="creatif">Créatif</option>
-              <option value="decontracte">Décontracté</option>
-            </select>
+        <div class="action-card" data-mode="import">
+          <div class="card-icon">📁</div>
+          <div class="card-content">
+            <h3 class="card-title">Importer un fichier</h3>
+            <p class="card-description">Importez un PDF, Word, Markdown ou fichier texte</p>
           </div>
         </div>
 
-        <button type="submit" id="generateBtn" class="generate-btn">
-          ✨ Générer la présentation
-        </button>
-      </form>
-      <div id="statusMessage"></div>
-    </div>
-
-    <div class="preview-panel">
-      <div class="preview-header">
-        <div class="slide-counter">
-          <span id="slideNumber">-</span> / <span id="totalSlides">-</span>
-        </div>
-        <div class="nav-controls">
-          <button id="prevBtn" class="nav-btn" disabled>← Précédent</button>
-          <button id="nextBtn" class="nav-btn" disabled>Suivant →</button>
+        <div class="action-card" data-mode="template">
+          <div class="card-icon">📋</div>
+          <div class="card-content">
+            <h3 class="card-title">Utiliser un modèle</h3>
+            <p class="card-description">Choisissez parmi des modèles professionnels</p>
+            <span class="card-badge">Bientôt</span>
+          </div>
         </div>
       </div>
-      <div class="preview-container">
-        <div class="slide-viewer">
-          <div class="placeholder">
-            <div class="placeholder-icon">🎯</div>
-            <h2>Prêt à créer ?</h2>
-            <p>Importez vos fichiers ou saisissez votre contenu, puis cliquez sur "Générer"</p>
+    </main>
+  </div>
+
+  <!-- EDITOR PAGE -->
+  <div class="editor-page" id="editorPage">
+    <header class="editor-header">
+      <button class="back-btn" id="backBtn">
+        <span>←</span>
+        Retour à l'accueil
+      </button>
+      <h1 class="editor-title" id="editorTitle">SlideForge</h1>
+      <button id="exportBtn" class="export-btn">
+        <span>📥</span>
+        Exporter PDF
+      </button>
+    </header>
+
+    <div class="editor-container">
+      <div class="form-panel">
+        <form id="slideForm">
+          <!-- Import Section -->
+          <div class="form-section" id="importSection">
+            <h3>📁 Import de fichiers</h3>
+            <div class="drop-zone" id="dropZone">
+              <div class="drop-zone-icon">📂</div>
+              <div class="drop-zone-text">Glissez-déposez vos fichiers ici</div>
+              <div class="drop-zone-subtext">PDF, Word, Markdown, Images, TXT</div>
+              <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.md,.txt,.png,.jpg,.jpeg" style="display: none;">
+            </div>
+            <div class="file-list" id="fileList"></div>
           </div>
-          <div id="slidesContainer"></div>
+
+          <!-- Content Section -->
+          <div class="form-section">
+            <h3>📝 Contenu</h3>
+            <div class="form-group">
+              <label for="content" id="contentLabel">Texte de la présentation</label>
+              <textarea id="content" class="form-control" required></textarea>
+            </div>
+          </div>
+
+          <!-- Brand Section -->
+          <div class="form-section">
+            <h3>🎨 Identité visuelle</h3>
+            <div class="form-group">
+              <label for="company">Nom de l'entreprise</label>
+              <input type="text" id="company" class="form-control" placeholder="Pixel Drop">
+            </div>
+            <div class="form-group">
+              <label for="logo">URL du logo</label>
+              <input type="url" id="logo" class="form-control" placeholder="https://exemple.com/logo.png">
+            </div>
+            <div class="form-group">
+              <label for="primaryColor">Couleur primaire</label>
+              <div class="color-input">
+                <input type="text" id="primaryColorText" class="form-control" value="#1a1a2e">
+                <input type="color" id="primaryColor" class="color-picker" value="#1a1a2e">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="secondaryColor">Couleur secondaire</label>
+              <div class="color-input">
+                <input type="text" id="secondaryColorText" class="form-control" value="#16213e">
+                <input type="color" id="secondaryColor" class="color-picker" value="#16213e">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="font">Police</label>
+              <select id="font" class="form-control">
+                <option value="Inter">Inter (moderne)</option>
+                <option value="Arial">Arial (classique)</option>
+                <option value="Roboto">Roboto (tech)</option>
+                <option value="Montserrat">Montserrat (élégant)</option>
+                <option value="Open Sans">Open Sans (lisible)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Style Section -->
+          <div class="form-section">
+            <h3>✨ Style</h3>
+            <div class="form-group">
+              <label for="tone">Ton</label>
+              <select id="tone" class="form-control">
+                <option value="professionnel">Professionnel</option>
+                <option value="corporate">Corporate</option>
+                <option value="startup">Startup</option>
+                <option value="creatif">Créatif</option>
+                <option value="decontracte">Décontracté</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="generateBtn" class="generate-btn">
+            ✨ Générer la présentation
+          </button>
+        </form>
+        <div id="statusMessage"></div>
+      </div>
+
+      <div class="preview-panel">
+        <div class="preview-header">
+          <div class="slide-counter">
+            <span id="slideNumber">-</span> / <span id="totalSlides">-</span>
+          </div>
+          <div class="nav-controls">
+            <button id="prevBtn" class="nav-btn" disabled>← Précédent</button>
+            <button id="nextBtn" class="nav-btn" disabled>Suivant →</button>
+          </div>
+        </div>
+        <div class="preview-container">
+          <div class="slide-viewer">
+            <div class="placeholder">
+              <div class="placeholder-icon">🎯</div>
+              <h2>Prêt à créer ?</h2>
+              <p>Importez vos fichiers ou saisissez votre contenu, puis cliquez sur "Générer"</p>
+            </div>
+            <div id="slidesContainer"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -684,8 +1013,18 @@
     let currentSlide = 0;
     let currentBrandKit = {};
     let importedFiles = [];
+    let currentMode = '';
 
     // DOM elements
+    const landingPage = document.getElementById('landingPage');
+    const editorPage = document.getElementById('editorPage');
+    const backBtn = document.getElementById('backBtn');
+    const editorTitle = document.getElementById('editorTitle');
+    const contentLabel = document.getElementById('contentLabel');
+    const contentTextarea = document.getElementById('content');
+    const importSection = document.getElementById('importSection');
+
+    // Editor elements
     const form = document.getElementById('slideForm');
     const generateBtn = document.getElementById('generateBtn');
     const exportBtn = document.getElementById('exportBtn');
@@ -700,7 +1039,80 @@
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
-    const contentTextarea = document.getElementById('content');
+
+    // === NAVIGATION BETWEEN PAGES ===
+    document.querySelectorAll('.action-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const mode = card.dataset.mode;
+        if (mode === 'template') {
+          // Template mode not available yet
+          showMessage('🚧 Les modèles arrivent bientôt !', 'info');
+          return;
+        }
+        
+        showEditor(mode);
+      });
+    });
+
+    backBtn.addEventListener('click', () => {
+      showLanding();
+    });
+
+    function showLanding() {
+      landingPage.style.display = 'flex';
+      editorPage.style.display = 'none';
+      editorPage.classList.remove('active');
+      
+      // Reset form
+      form.reset();
+      importedFiles = [];
+      renderFileList();
+      updateContentFromFiles();
+      slides = [];
+      currentSlide = 0;
+      updateSlideDisplay();
+      updateNavigation();
+      exportBtn.classList.remove('enabled');
+      
+      // Hide placeholder slides
+      const placeholder = document.querySelector('.placeholder');
+      if (placeholder) placeholder.style.display = 'flex';
+      slidesContainer.style.display = 'none';
+    }
+
+    function showEditor(mode) {
+      currentMode = mode;
+      landingPage.style.display = 'none';
+      editorPage.style.display = 'flex';
+      editorPage.classList.add('active');
+      
+      // Update UI based on mode
+      switch (mode) {
+        case 'generate':
+          editorTitle.textContent = 'Générer avec l\'IA';
+          contentLabel.textContent = 'Décrivez votre présentation';
+          contentTextarea.placeholder = 'Décrivez votre présentation : points clés, objectifs, données importantes...';
+          importSection.style.display = 'block';
+          break;
+          
+        case 'paste':
+          editorTitle.textContent = 'Créer à partir de texte';
+          contentLabel.textContent = 'Collez votre contenu existant';
+          contentTextarea.placeholder = 'Collez ici vos notes, plan, contenu existant...';
+          importSection.style.display = 'none';
+          contentTextarea.focus();
+          break;
+          
+        case 'import':
+          editorTitle.textContent = 'Importer un fichier';
+          contentLabel.textContent = 'Contenu des fichiers importés';
+          contentTextarea.placeholder = 'Le contenu des fichiers apparaîtra ici automatiquement...';
+          importSection.style.display = 'block';
+          // Auto-click the drop zone to trigger file selection
+          setTimeout(() => fileInput.click(), 100);
+          break;
+      }
+    }
 
     // Color sync
     document.getElementById('primaryColor').addEventListener('input', e => document.getElementById('primaryColorText').value = e.target.value);
@@ -856,7 +1268,7 @@
       return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
-    // === ORIGINAL SLIDEFORGE FUNCTIONALITY ===
+    // === SLIDEFORGE FUNCTIONALITY ===
     function buildPrompt(content, brandKit) {
       return `Tu es un expert en design de présentations. Génère des slides HTML professionnelles.
 
@@ -1002,6 +1414,9 @@ TON : ${brandKit.tone || 'professionnel'}`;
         setTimeout(() => statusMessage.innerHTML = '', 5000);
       }
     }
+
+    // Initialize landing page on load
+    showLanding();
   </script>
 </body>
 </html>
