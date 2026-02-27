@@ -4,9 +4,465 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SlideForge - Générateur de Présentations IA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* === BASE THEME === */
+    /* === RESET & BASE === */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* === AgentBox STYLE VARIABLES === */
+    :root {
+      --bg-primary: #0B0F1A;
+      --bg-panel: #131825;
+      --bg-card: rgba(19, 24, 37, 0.8);
+      --bg-input: rgba(51, 65, 85, 0.5);
+      --bg-button: linear-gradient(135deg, #3B82F6, #2563EB);
+      --border: 1px solid rgba(255, 255, 255, 0.06);
+      --border-hover: 1px solid rgba(59, 130, 246, 0.5);
+      --text-primary: #E2E8F0;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --accent: #3B82F6;
+      --accent-hover: #2563EB;
+      --success: #10B981;
+      --error: #EF4444;
+      --warning: #F59E0B;
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      --glass: rgba(19, 24, 37, 0.8);
+      --glass-blur: blur(12px);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+
+    /* === SCROLLBAR === */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { 
+      background: rgba(255, 255, 255, 0.1); 
+      border-radius: 3px; 
+    }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.3); }
+
+    /* === HEADER === */
+    .header {
+      padding: 1rem 2rem;
+      background: var(--glass);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), #8B5CF6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .export-btn {
+      background: var(--bg-button);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      opacity: 0.5;
+      pointer-events: none;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .export-btn.enabled { 
+      opacity: 1; 
+      pointer-events: auto; 
+    }
+
+    .export-btn:hover.enabled { 
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+    }
+
+    /* === MAIN LAYOUT === */
+    .main-container {
+      display: grid;
+      grid-template-columns: 450px 1fr;
+      min-height: calc(100vh - 80px);
+    }
+
+    @media (max-width: 1024px) {
+      .main-container { grid-template-columns: 1fr; }
+    }
+
+    /* === FORM PANEL === */
+    .form-panel {
+      padding: 2rem;
+      background: var(--glass);
+      border-right: var(--border);
+      overflow-y: auto;
+      backdrop-filter: var(--glass-blur);
+    }
+
+    .form-section { 
+      margin-bottom: 2rem; 
+    }
+
+    .form-section h3 { 
+      font-size: 1rem; 
+      font-weight: 600; 
+      margin-bottom: 1rem; 
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-group { 
+      margin-bottom: 1.5rem; 
+    }
+
+    .form-group label { 
+      display: block; 
+      margin-bottom: 0.75rem; 
+      font-weight: 500; 
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: var(--border);
+      border-radius: 0.75rem;
+      background: var(--bg-input);
+      backdrop-filter: var(--glass-blur);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus { 
+      outline: none; 
+      border: var(--border-hover);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: rgba(51, 65, 85, 0.7);
+    }
+
+    textarea.form-control { 
+      min-height: 120px; 
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .color-input { 
+      display: grid; 
+      grid-template-columns: 1fr 60px; 
+      gap: 0.75rem; 
+      align-items: center; 
+    }
+
+    .color-picker { 
+      width: 60px; 
+      height: 45px; 
+      border: var(--border); 
+      border-radius: 0.75rem; 
+      cursor: pointer;
+      background: transparent;
+    }
+
+    /* === DRAG & DROP ZONE === */
+    .drop-zone {
+      border: 2px dashed rgba(59, 130, 246, 0.3);
+      border-radius: 0.75rem;
+      padding: 2rem;
+      text-align: center;
+      background: rgba(59, 130, 246, 0.05);
+      backdrop-filter: var(--glass-blur);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .drop-zone-icon {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .drop-zone-text {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .drop-zone-subtext {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    /* File list */
+    .file-list {
+      margin-top: 1rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: var(--bg-card);
+      border: var(--border);
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .file-item-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .file-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--accent);
+    }
+
+    .file-name {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .file-size {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .file-remove {
+      background: none;
+      border: none;
+      color: var(--error);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .file-remove:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* === BUTTONS === */
+    .generate-btn, .btn-primary {
+      width: 100%;
+      background: var(--bg-button);
+      color: white;
+      border: none;
+      padding: 1rem 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .generate-btn:hover:not(:disabled), .btn-primary:hover:not(:disabled) { 
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+    }
+
+    .generate-btn:disabled, .btn-primary:disabled { 
+      opacity: 0.5; 
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === PREVIEW PANEL === */
+    .preview-panel {
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      padding: 1.5rem 2rem;
+      background: var(--glass);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slide-counter { 
+      font-weight: 600; 
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .nav-controls { 
+      display: flex; 
+      gap: 0.5rem; 
+    }
+
+    .nav-btn {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) { 
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: var(--accent);
+    }
+
+    .nav-btn:disabled { 
+      opacity: 0.3; 
+      cursor: not-allowed; 
+    }
+
+    /* === SLIDE VIEWER === */
+    .preview-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.02), rgba(139, 92, 246, 0.02));
+    }
+
+    .slide-viewer {
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+      border: var(--border);
+    }
+
+    .slide { 
+      width: 100%; 
+      height: 100%; 
+      display: none; 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+    }
+
+    .slide.active { 
+      display: block; 
+    }
+
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      background: linear-gradient(135deg, var(--bg-panel), rgba(59, 130, 246, 0.05));
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .placeholder-icon { 
+      font-size: 4rem; 
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    .placeholder h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .placeholder p {
+      color: var(--text-muted);
+    }
+
+    /* === MESSAGES === */
+    .message {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .error-message { 
+      background: rgba(239, 68, 68, 0.1); 
+      border: 1px solid rgba(239, 68, 68, 0.3); 
+      color: #FCA5A5; 
+    }
+
+    .success-message { 
+      background: rgba(16, 185, 129, 0.1); 
+      border: 1px solid rgba(16, 185, 129, 0.3); 
+      color: #86EFAC; 
+    }
+
+    .info-message {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93C5FD;
+    }
+
+    /* === SLIDE STYLES (preserved from original) === */
     :root {
       --sf-primary: var(--brand-primary, #1a1a2e);
       --sf-secondary: var(--brand-secondary, #16213e);
@@ -17,198 +473,9 @@
       --sf-bg-dark: var(--brand-bg-dark, #0a0a1a);
       --sf-font: var(--brand-font, 'Inter', sans-serif);
       --sf-font-heading: var(--brand-font-heading, var(--sf-font));
-      --sf-radius: 8px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #0f1419;
-      color: #e8e8e8;
-      line-height: 1.6;
-    }
-
-    .header {
-      padding: 1.5rem 2rem;
-      background: rgba(26, 26, 46, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #4ade80, #3b82f6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .export-btn {
-      background: linear-gradient(135deg, #4ade80, #3b82f6);
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .export-btn.enabled { opacity: 1; pointer-events: auto; }
-    .export-btn:hover.enabled { transform: translateY(-2px); }
-
-    .main-container {
-      display: grid;
-      grid-template-columns: 400px 1fr;
-      min-height: calc(100vh - 80px);
-    }
-
-    @media (max-width: 900px) {
-      .main-container { grid-template-columns: 1fr; }
-    }
-
-    /* FORM PANEL */
-    .form-panel {
-      padding: 2rem;
-      background: rgba(22, 33, 62, 0.3);
-      border-right: 1px solid rgba(255, 255, 255, 0.1);
-      overflow-y: auto;
-    }
-
-    .form-section { margin-bottom: 2rem; }
-    .form-section h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #4ade80; }
-    .form-group { margin-bottom: 1.5rem; }
-    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #e8e8e8; }
-
-    .form-control {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #e8e8e8;
-      font-family: inherit;
-    }
-
-    .form-control:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2); }
-    textarea.form-control { min-height: 120px; resize: vertical; }
-
-    .color-input { display: grid; grid-template-columns: 1fr 60px; gap: 0.5rem; align-items: center; }
-    .color-picker { width: 60px; height: 40px; border: none; border-radius: 6px; cursor: pointer; }
-
-    .generate-btn {
-      width: 100%;
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-      color: white;
-      border: 2px solid #4ade80;
-      padding: 1rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-top: 1rem;
-    }
-
-    .generate-btn:hover:not(:disabled) { background: linear-gradient(135deg, #4ade80, #3b82f6); transform: translateY(-2px); }
-    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s linear infinite;
-      margin-right: 0.5rem;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* PREVIEW PANEL */
-    .preview-panel {
-      background: #111827;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .preview-header {
-      padding: 1rem 2rem;
-      background: rgba(17, 24, 39, 0.8);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .slide-counter { font-weight: 500; color: #9ca3af; }
-    .nav-controls { display: flex; gap: 0.5rem; }
-
-    .nav-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: #e8e8e8;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .nav-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
-    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    .preview-container {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
-      overflow: hidden;
-    }
-
-    .slide-viewer {
-      width: 100%;
-      max-width: 1000px;
-      aspect-ratio: 16/9;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .slide { width: 100%; height: 100%; display: none; position: absolute; top: 0; left: 0; }
-    .slide.active { display: block; }
-
-    .placeholder {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      color: #6b7280;
-      text-align: center;
-    }
-
-    .placeholder-icon { font-size: 4rem; margin-bottom: 1rem; }
-
-    .error-message { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-    .success-message { background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: #86efac; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
-
-    /* === SLIDE STYLES (inside viewer) === */
-    .slide .slidev-layout,
-    .slide.slidev-layout {
+    .slide .slidev-layout, .slide.slidev-layout {
       font-family: var(--sf-font);
       color: var(--sf-text-dark);
       background: var(--sf-bg);
@@ -275,27 +542,53 @@
     .slide ul { list-style: none; padding: 0; }
     .slide ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.75rem; }
     .slide ul li::before { content: ''; position: absolute; left: 0; top: 0.5rem; width: 8px; height: 8px; border-radius: 50%; background: var(--sf-accent); }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 1024px) {
+      .main-container { grid-template-columns: 1fr; }
+      .form-panel { border-right: none; border-bottom: var(--border); }
+    }
+
+    @media (max-width: 640px) {
+      .header { padding: 1rem; }
+      .form-panel, .preview-container { padding: 1rem; }
+      .slide-viewer { margin: 0; }
+    }
   </style>
 </head>
 <body>
   <header class="header">
     <h1>SlideForge</h1>
-    <button id="exportBtn" class="export-btn">Exporter PDF</button>
+    <button id="exportBtn" class="export-btn">📥 Exporter PDF</button>
   </header>
 
   <div class="main-container">
     <div class="form-panel">
       <form id="slideForm">
+        <!-- Import Section -->
         <div class="form-section">
-          <h3>Contenu</h3>
+          <h3>📁 Import de fichiers</h3>
+          <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">📂</div>
+            <div class="drop-zone-text">Glissez-déposez vos fichiers ici</div>
+            <div class="drop-zone-subtext">PDF, Word, Markdown, Images, TXT</div>
+            <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.md,.txt,.png,.jpg,.jpeg" style="display: none;">
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="form-section">
+          <h3>📝 Contenu</h3>
           <div class="form-group">
-            <label for="content">Texte de la presentation</label>
-            <textarea id="content" class="form-control" placeholder="Decrivez votre presentation : points cles, objectifs, donnees importantes..." required></textarea>
+            <label for="content">Texte de la présentation</label>
+            <textarea id="content" class="form-control" placeholder="Décrivez votre présentation : points clés, objectifs, données importantes...&#10;&#10;Le texte des fichiers importés sera ajouté automatiquement ici." required></textarea>
           </div>
         </div>
 
+        <!-- Brand Section -->
         <div class="form-section">
-          <h3>Identite visuelle</h3>
+          <h3>🎨 Identité visuelle</h3>
           <div class="form-group">
             <label for="company">Nom de l'entreprise</label>
             <input type="text" id="company" class="form-control" placeholder="Pixel Drop">
@@ -324,45 +617,50 @@
               <option value="Inter">Inter (moderne)</option>
               <option value="Arial">Arial (classique)</option>
               <option value="Roboto">Roboto (tech)</option>
-              <option value="Montserrat">Montserrat (elegant)</option>
+              <option value="Montserrat">Montserrat (élégant)</option>
               <option value="Open Sans">Open Sans (lisible)</option>
             </select>
           </div>
         </div>
 
+        <!-- Style Section -->
         <div class="form-section">
-          <h3>Style</h3>
+          <h3>✨ Style</h3>
           <div class="form-group">
             <label for="tone">Ton</label>
             <select id="tone" class="form-control">
               <option value="professionnel">Professionnel</option>
               <option value="corporate">Corporate</option>
               <option value="startup">Startup</option>
-              <option value="creatif">Creatif</option>
-              <option value="decontracte">Decontracte</option>
+              <option value="creatif">Créatif</option>
+              <option value="decontracte">Décontracté</option>
             </select>
           </div>
         </div>
 
-        <button type="submit" id="generateBtn" class="generate-btn">Generer la presentation</button>
+        <button type="submit" id="generateBtn" class="generate-btn">
+          ✨ Générer la présentation
+        </button>
       </form>
       <div id="statusMessage"></div>
     </div>
 
     <div class="preview-panel">
       <div class="preview-header">
-        <div class="slide-counter"><span id="slideNumber">-</span> / <span id="totalSlides">-</span></div>
+        <div class="slide-counter">
+          <span id="slideNumber">-</span> / <span id="totalSlides">-</span>
+        </div>
         <div class="nav-controls">
-          <button id="prevBtn" class="nav-btn" disabled>&#8592; Precedent</button>
-          <button id="nextBtn" class="nav-btn" disabled>Suivant &#8594;</button>
+          <button id="prevBtn" class="nav-btn" disabled>← Précédent</button>
+          <button id="nextBtn" class="nav-btn" disabled>Suivant →</button>
         </div>
       </div>
       <div class="preview-container">
         <div class="slide-viewer">
           <div class="placeholder">
-            <div class="placeholder-icon">&#127912;</div>
-            <h2>Pret a creer ?</h2>
-            <p>Remplissez le formulaire et cliquez sur "Generer"</p>
+            <div class="placeholder-icon">🎯</div>
+            <h2>Prêt à créer ?</h2>
+            <p>Importez vos fichiers ou saisissez votre contenu, puis cliquez sur "Générer"</p>
           </div>
           <div id="slidesContainer"></div>
         </div>
@@ -371,20 +669,23 @@
   </div>
 
   <script>
-    // API key from URL param or localStorage
+    // API key management
     const params = new URLSearchParams(window.location.search);
     let GEMINI_API_KEY = params.get('key') || localStorage.getItem('sf_gemini_key') || '';
     if (GEMINI_API_KEY) localStorage.setItem('sf_gemini_key', GEMINI_API_KEY);
     if (!GEMINI_API_KEY) {
-      GEMINI_API_KEY = prompt('Entrez votre cle API Gemini :');
+      GEMINI_API_KEY = prompt('Entrez votre clé API Gemini :');
       if (GEMINI_API_KEY) localStorage.setItem('sf_gemini_key', GEMINI_API_KEY);
     }
     const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+    // Global variables
     let slides = [];
     let currentSlide = 0;
     let currentBrandKit = {};
+    let importedFiles = [];
 
+    // DOM elements
     const form = document.getElementById('slideForm');
     const generateBtn = document.getElementById('generateBtn');
     const exportBtn = document.getElementById('exportBtn');
@@ -395,14 +696,169 @@
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
 
+    // File import elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const contentTextarea = document.getElementById('content');
+
     // Color sync
     document.getElementById('primaryColor').addEventListener('input', e => document.getElementById('primaryColorText').value = e.target.value);
     document.getElementById('primaryColorText').addEventListener('input', e => { if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('primaryColor').value = e.target.value; });
     document.getElementById('secondaryColor').addEventListener('input', e => document.getElementById('secondaryColorText').value = e.target.value);
     document.getElementById('secondaryColorText').addEventListener('input', e => { if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('secondaryColor').value = e.target.value; });
 
+    // === FILE IMPORT FUNCTIONALITY === 
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', handleDragOver);
+    dropZone.addEventListener('dragleave', handleDragLeave);
+    dropZone.addEventListener('drop', handleDrop);
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+      e.preventDefault();
+      if (!dropZone.contains(e.relatedTarget)) {
+        dropZone.classList.remove('drag-over');
+      }
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const files = Array.from(e.dataTransfer.files);
+      processFiles(files);
+    }
+
+    function handleFileSelect(e) {
+      const files = Array.from(e.target.files);
+      processFiles(files);
+    }
+
+    async function processFiles(files) {
+      showMessage('🔄 Traitement des fichiers...', 'info');
+      
+      for (const file of files) {
+        if (importedFiles.find(f => f.name === file.name)) continue;
+        
+        const fileData = {
+          name: file.name,
+          size: formatFileSize(file.size),
+          type: file.type,
+          content: ''
+        };
+
+        try {
+          fileData.content = await extractFileContent(file);
+          importedFiles.push(fileData);
+          renderFileList();
+          updateContentFromFiles();
+        } catch (error) {
+          showMessage(`❌ Erreur lors du traitement de ${file.name}: ${error.message}`, 'error');
+        }
+      }
+      
+      showMessage('✅ Fichiers traités avec succès', 'success');
+    }
+
+    async function extractFileContent(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+          const content = e.target.result;
+          
+          // Basic text extraction based on file type
+          if (file.type.includes('text') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+            resolve(content);
+          } else if (file.type.includes('image')) {
+            resolve(`[IMAGE: ${file.name}]`);
+          } else {
+            // For other files (PDF, Word, etc.), we can only provide basic info
+            resolve(`[DOCUMENT: ${file.name} - Contenu non extractible dans cette version]`);
+          }
+        };
+        
+        reader.onerror = () => reject(new Error('Erreur de lecture du fichier'));
+        
+        if (file.type.includes('text') || file.name.endsWith('.md') || file.name.endsWith('.txt')) {
+          reader.readAsText(file);
+        } else {
+          reader.readAsArrayBuffer(file);
+        }
+      });
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = importedFiles.map(file => `
+        <div class="file-item">
+          <div class="file-item-info">
+            <div class="file-icon">${getFileIcon(file.name)}</div>
+            <div>
+              <div class="file-name">${file.name}</div>
+              <div class="file-size">${file.size}</div>
+            </div>
+          </div>
+          <button class="file-remove" onclick="removeFile('${file.name}')">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const icons = {
+        'pdf': '📄',
+        'doc': '📄',
+        'docx': '📄',
+        'md': '📝',
+        'txt': '📝',
+        'png': '🖼️',
+        'jpg': '🖼️',
+        'jpeg': '🖼️'
+      };
+      return icons[ext] || '📄';
+    }
+
+    function removeFile(filename) {
+      importedFiles = importedFiles.filter(file => file.name !== filename);
+      renderFileList();
+      updateContentFromFiles();
+    }
+
+    function updateContentFromFiles() {
+      const fileContents = importedFiles
+        .filter(file => file.content && !file.content.startsWith('['))
+        .map(file => `\n\n--- ${file.name} ---\n${file.content}`)
+        .join('');
+      
+      const currentContent = contentTextarea.value;
+      const hasFileMarker = currentContent.includes('--- ');
+      
+      if (hasFileMarker) {
+        // Replace existing file content
+        const beforeFiles = currentContent.split('--- ')[0].trim();
+        contentTextarea.value = beforeFiles + fileContents;
+      } else {
+        // Append file content
+        contentTextarea.value = (currentContent + fileContents).trim();
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // === ORIGINAL SLIDEFORGE FUNCTIONALITY ===
     function buildPrompt(content, brandKit) {
-      return `Tu es un expert en design de presentations. Genere des slides HTML professionnelles.
+      return `Tu es un expert en design de présentations. Génère des slides HTML professionnelles.
 
 LAYOUTS DISPONIBLES (utilise ces classes CSS exactes) :
 
@@ -414,13 +870,13 @@ LAYOUTS DISPONIBLES (utilise ces classes CSS exactes) :
 6. Quote : <div class="slide layout-quote"><blockquote>"Citation"</blockquote></div>
 7. End : <div class="slide layout-end"><h1>Merci</h1><p>contact@entreprise.com</p></div>
 
-REGLES :
+RÈGLES :
 - Slide 1 = TOUJOURS cover
-- Derniere slide = TOUJOURS end
+- Dernière slide = TOUJOURS end
 - MAX 6 lignes par slide
-- UNE idee par slide
+- UNE idée par slide
 - Alterner les layouts
-- Genere UNIQUEMENT le HTML des slides (pas de page, pas de style, pas de code fence)
+- Génère UNIQUEMENT le HTML des slides (pas de page, pas de style, pas de code fence)
 - Commence directement par <div class="slide
 
 CONTENU : ${content}
@@ -430,8 +886,11 @@ TON : ${brandKit.tone || 'professionnel'}`;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const content = document.getElementById('content').value;
-      if (!content.trim()) { showMessage('Saisissez du contenu.', 'error'); return; }
+      const content = contentTextarea.value;
+      if (!content.trim()) { 
+        showMessage('❌ Saisissez du contenu ou importez des fichiers.', 'error'); 
+        return; 
+      }
 
       currentBrandKit = {
         company: document.getElementById('company').value || 'Entreprise',
@@ -443,8 +902,8 @@ TON : ${brandKit.tone || 'professionnel'}`;
       };
 
       generateBtn.disabled = true;
-      generateBtn.innerHTML = '<span class="spinner"></span>Generation...';
-      showMessage('Appel Gemini en cours...', 'info');
+      generateBtn.innerHTML = '<span class="spinner"></span>Génération...';
+      showMessage('🚀 Appel Gemini en cours...', 'info');
 
       try {
         const resp = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
@@ -459,7 +918,7 @@ TON : ${brandKit.tone || 'professionnel'}`;
         if (!resp.ok) throw new Error(`Gemini API error ${resp.status}`);
         const data = await resp.json();
         let html = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!html) throw new Error('Pas de contenu retourne');
+        if (!html) throw new Error('Pas de contenu retourné');
 
         // Clean code fences if present
         const match = html.match(/```html\n([\s\S]*?)```/);
@@ -467,14 +926,14 @@ TON : ${brandKit.tone || 'professionnel'}`;
         html = html.replace(/```/g, '').trim();
 
         displaySlides(html);
-        showMessage('Slides generees !', 'success');
+        showMessage('✅ Slides générées avec succès !', 'success');
         exportBtn.classList.add('enabled');
       } catch (err) {
         console.error(err);
-        showMessage('Erreur : ' + err.message, 'error');
+        showMessage('❌ Erreur : ' + err.message, 'error');
       } finally {
         generateBtn.disabled = false;
-        generateBtn.innerHTML = 'Generer la presentation';
+        generateBtn.innerHTML = '✨ Générer la présentation';
       }
     });
 
@@ -492,7 +951,10 @@ TON : ${brandKit.tone || 'professionnel'}`;
       slidesContainer.style.display = 'block';
       slides = Array.from(slidesContainer.querySelectorAll('.slide'));
 
-      if (slides.length === 0) { showMessage('Aucune slide.', 'error'); return; }
+      if (slides.length === 0) { 
+        showMessage('❌ Aucune slide générée.', 'error'); 
+        return; 
+      }
 
       currentSlide = 0;
       totalSlides.textContent = slides.length;
@@ -510,8 +972,21 @@ TON : ${brandKit.tone || 'professionnel'}`;
       nextBtn.disabled = currentSlide === slides.length - 1;
     }
 
-    prevBtn.addEventListener('click', () => { if (currentSlide > 0) { currentSlide--; updateSlideDisplay(); updateNavigation(); } });
-    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) { currentSlide++; updateSlideDisplay(); updateNavigation(); } });
+    prevBtn.addEventListener('click', () => { 
+      if (currentSlide > 0) { 
+        currentSlide--; 
+        updateSlideDisplay(); 
+        updateNavigation(); 
+      } 
+    });
+
+    nextBtn.addEventListener('click', () => { 
+      if (currentSlide < slides.length - 1) { 
+        currentSlide++; 
+        updateSlideDisplay(); 
+        updateNavigation(); 
+      } 
+    });
 
     document.addEventListener('keydown', (e) => {
       if (!slides.length) return;
@@ -520,9 +995,12 @@ TON : ${brandKit.tone || 'professionnel'}`;
     });
 
     function showMessage(text, type) {
-      const cls = type === 'error' ? 'error-message' : type === 'success' ? 'success-message' : '';
-      statusMessage.innerHTML = `<div class="${cls}">${text}</div>`;
-      if (type === 'success') setTimeout(() => statusMessage.innerHTML = '', 5000);
+      const typeClass = type === 'error' ? 'error-message' : 
+                       type === 'success' ? 'success-message' : 'info-message';
+      statusMessage.innerHTML = `<div class="message ${typeClass}">${text}</div>`;
+      if (type === 'success') {
+        setTimeout(() => statusMessage.innerHTML = '', 5000);
+      }
     }
   </script>
 </body>
