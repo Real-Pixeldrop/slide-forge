@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlideForge - Générateur de Présentations IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="/engine/themes/base/styles.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f1419;
+      color: #e8e8e8;
+      line-height: 1.6;
+    }
+
+    .header {
+      padding: 1.5rem 2rem;
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #4ade80, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, #4ade80, #3b82f6);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .export-btn.enabled {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .export-btn:hover.enabled {
+      transform: translateY(-2px);
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      min-height: calc(100vh - 80px);
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+    }
+
+    /* FORMULAIRE */
+    .form-panel {
+      padding: 2rem;
+      background: rgba(22, 33, 62, 0.3);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #4ade80;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #e8e8e8;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #e8e8e8;
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #4ade80;
+      box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .color-input {
+      display: grid;
+      grid-template-columns: 1fr 60px;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .color-picker {
+      width: 60px;
+      height: 40px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .generate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: white;
+      border: 2px solid #4ade80;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 1rem;
+    }
+
+    .generate-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4ade80, #3b82f6);
+      transform: translateY(-2px);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* PREVIEW */
+    .preview-panel {
+      background: #111827;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .preview-header {
+      padding: 1rem 2rem;
+      background: rgba(17, 24, 39, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slide-counter {
+      font-weight: 500;
+      color: #9ca3af;
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #e8e8e8;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .preview-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    .slide-viewer {
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide {
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .placeholder-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .success-message {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: #86efac;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>🎨 SlideForge</h1>
+    <button id="exportBtn" class="export-btn">
+      📄 Exporter PDF
+    </button>
+  </header>
+
+  <div class="main-container">
+    <!-- FORMULAIRE -->
+    <div class="form-panel">
+      <form id="slideForm">
+        <div class="form-section">
+          <h3>📝 Contenu</h3>
+          <div class="form-group">
+            <label for="content">Texte de la présentation</label>
+            <textarea id="content" class="form-control" placeholder="Décrivez votre présentation : points clés, objectifs, données importantes..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>🎨 Identité visuelle</h3>
+          <div class="form-group">
+            <label for="company">Nom de l'entreprise</label>
+            <input type="text" id="company" class="form-control" placeholder="Pixel Drop">
+          </div>
+          
+          <div class="form-group">
+            <label for="logo">URL du logo</label>
+            <input type="url" id="logo" class="form-control" placeholder="https://exemple.com/logo.png">
+          </div>
+          
+          <div class="form-group">
+            <label for="primaryColor">Couleur primaire</label>
+            <div class="color-input">
+              <input type="text" id="primaryColorText" class="form-control" placeholder="#1a1a2e">
+              <input type="color" id="primaryColor" class="color-picker" value="#1a1a2e">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="secondaryColor">Couleur secondaire</label>
+            <div class="color-input">
+              <input type="text" id="secondaryColorText" class="form-control" placeholder="#16213e">
+              <input type="color" id="secondaryColor" class="color-picker" value="#16213e">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="font">Police</label>
+            <select id="font" class="form-control">
+              <option value="Inter">Inter (moderne)</option>
+              <option value="Arial">Arial (classique)</option>
+              <option value="Roboto">Roboto (tech)</option>
+              <option value="Montserrat">Montserrat (élégant)</option>
+              <option value="Open Sans">Open Sans (lisible)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>💼 Style</h3>
+          <div class="form-group">
+            <label for="tone">Ton de la présentation</label>
+            <select id="tone" class="form-control">
+              <option value="professionnel">Professionnel</option>
+              <option value="corporate">Corporate</option>
+              <option value="startup">Startup</option>
+              <option value="créatif">Créatif</option>
+              <option value="décontracté">Décontracté</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" id="generateBtn" class="generate-btn">
+          🚀 Générer la présentation
+        </button>
+      </form>
+
+      <div id="statusMessage"></div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <div class="slide-counter">
+          <span id="slideNumber">-</span> / <span id="totalSlides">-</span>
+        </div>
+        <div class="nav-controls">
+          <button id="prevBtn" class="nav-btn" disabled>← Précédent</button>
+          <button id="nextBtn" class="nav-btn" disabled>Suivant →</button>
+        </div>
+      </div>
+      
+      <div class="preview-container">
+        <div class="slide-viewer">
+          <div class="placeholder">
+            <div class="placeholder-icon">🎯</div>
+            <h2>Prêt à créer ?</h2>
+            <p>Remplissez le formulaire et cliquez sur "Générer"<br>pour voir vos slides apparaître ici.</p>
+          </div>
+          <div id="slidesContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // État global
+    let slides = [];
+    let currentSlide = 0;
+    let currentBrandKit = {};
+
+    // Éléments DOM
+    const form = document.getElementById('slideForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const slidesContainer = document.getElementById('slidesContainer');
+    const slideNumber = document.getElementById('slideNumber');
+    const totalSlides = document.getElementById('totalSlides');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Synchronisation des couleurs
+    document.getElementById('primaryColor').addEventListener('input', (e) => {
+      document.getElementById('primaryColorText').value = e.target.value;
+    });
+    
+    document.getElementById('primaryColorText').addEventListener('input', (e) => {
+      if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) {
+        document.getElementById('primaryColor').value = e.target.value;
+      }
+    });
+    
+    document.getElementById('secondaryColor').addEventListener('input', (e) => {
+      document.getElementById('secondaryColorText').value = e.target.value;
+    });
+    
+    document.getElementById('secondaryColorText').addEventListener('input', (e) => {
+      if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) {
+        document.getElementById('secondaryColor').value = e.target.value;
+      }
+    });
+
+    // Génération des slides
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const content = document.getElementById('content').value;
+      
+      if (!content.trim()) {
+        showMessage('Veuillez saisir le contenu de votre présentation.', 'error');
+        return;
+      }
+
+      // Préparer les données
+      currentBrandKit = {
+        company: document.getElementById('company').value || 'Entreprise',
+        logo: document.getElementById('logo').value,
+        primaryColor: document.getElementById('primaryColor').value,
+        secondaryColor: document.getElementById('secondaryColor').value,
+        font: document.getElementById('font').value,
+        tone: document.getElementById('tone').value
+      };
+
+      // UI loading
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="spinner"></span>Génération...';
+      showMessage('Génération des slides en cours...', 'info');
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: content,
+            brandKit: currentBrandKit
+          })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Erreur lors de la génération');
+        }
+
+        // Afficher les slides
+        displaySlides(result.slides);
+        showMessage('Slides générées avec succès ! 🎉', 'success');
+        exportBtn.classList.add('enabled');
+
+      } catch (error) {
+        console.error('Erreur:', error);
+        showMessage(`Erreur : ${error.message}`, 'error');
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '🚀 Générer la présentation';
+      }
+    });
+
+    // Affichage des slides
+    function displaySlides(slidesHtml) {
+      // Injecter le CSS du brand kit
+      const brandCss = `
+        :root {
+          --brand-primary: ${currentBrandKit.primaryColor};
+          --brand-secondary: ${currentBrandKit.secondaryColor};
+          --brand-font: '${currentBrandKit.font}', sans-serif;
+        }
+      `;
+      
+      // Ajouter le style au document
+      let existingStyle = document.getElementById('brandStyle');
+      if (existingStyle) existingStyle.remove();
+      
+      const styleEl = document.createElement('style');
+      styleEl.id = 'brandStyle';
+      styleEl.textContent = brandCss;
+      document.head.appendChild(styleEl);
+
+      // Cacher le placeholder et afficher les slides
+      const placeholder = document.querySelector('.placeholder');
+      if (placeholder) {
+        placeholder.style.display = 'none';
+      }
+
+      // Parser et afficher les slides
+      slidesContainer.innerHTML = slidesHtml;
+      slidesContainer.style.display = 'block';
+      slides = Array.from(slidesContainer.querySelectorAll('.slide'));
+      
+      if (slides.length === 0) {
+        showMessage('Aucune slide générée. Réessayez.', 'error');
+        return;
+      }
+
+      // Initialiser la navigation
+      currentSlide = 0;
+      totalSlides.textContent = slides.length;
+      updateSlideDisplay();
+      updateNavigation();
+    }
+
+    // Navigation
+    function updateSlideDisplay() {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+      });
+      slideNumber.textContent = currentSlide + 1;
+    }
+
+    function updateNavigation() {
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === slides.length - 1;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlideDisplay();
+        updateNavigation();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        updateSlideDisplay();
+        updateNavigation();
+      }
+    });
+
+    // Export PDF
+    exportBtn.addEventListener('click', async () => {
+      if (!slides.length) {
+        showMessage('Générez d\'abord des slides avant d\'exporter.', 'error');
+        return;
+      }
+
+      exportBtn.disabled = true;
+      exportBtn.innerHTML = '⏳ Export...';
+      showMessage('Export PDF en cours...', 'info');
+
+      try {
+        const response = await fetch('/api/export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slidesHtml: slidesContainer.innerHTML,
+            brandKit: currentBrandKit
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors de l\'export PDF');
+        }
+
+        // Télécharger le PDF
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `presentation-${currentBrandKit.company || 'slideforge'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showMessage('PDF exporté avec succès ! 📄', 'success');
+
+      } catch (error) {
+        showMessage(`Erreur export : ${error.message}`, 'error');
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.innerHTML = '📄 Exporter PDF';
+      }
+    });
+
+    // Messages
+    function showMessage(text, type) {
+      const className = type === 'error' ? 'error-message' : 
+                       type === 'success' ? 'success-message' : '';
+      
+      statusMessage.innerHTML = `<div class="${className}">${text}</div>`;
+      
+      if (type === 'success') {
+        setTimeout(() => statusMessage.innerHTML = '', 5000);
+      }
+    }
+
+    // Navigation clavier
+    document.addEventListener('keydown', (e) => {
+      if (slides.length === 0) return;
+      
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        prevBtn.click();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        nextBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
