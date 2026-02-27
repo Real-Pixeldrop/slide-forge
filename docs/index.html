@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlideForge - Générateur de Présentations IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* === BASE THEME === */
+    :root {
+      --sf-primary: var(--brand-primary, #1a1a2e);
+      --sf-secondary: var(--brand-secondary, #16213e);
+      --sf-accent: var(--brand-accent, #0f3460);
+      --sf-text: var(--brand-text, #e8e8e8);
+      --sf-text-dark: var(--brand-text-dark, #1a1a2e);
+      --sf-bg: var(--brand-bg, #ffffff);
+      --sf-bg-dark: var(--brand-bg-dark, #0a0a1a);
+      --sf-font: var(--brand-font, 'Inter', sans-serif);
+      --sf-font-heading: var(--brand-font-heading, var(--sf-font));
+      --sf-radius: 8px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f1419;
+      color: #e8e8e8;
+      line-height: 1.6;
+    }
+
+    .header {
+      padding: 1.5rem 2rem;
+      background: rgba(26, 26, 46, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #4ade80, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, #4ade80, #3b82f6);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .export-btn.enabled { opacity: 1; pointer-events: auto; }
+    .export-btn:hover.enabled { transform: translateY(-2px); }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      min-height: calc(100vh - 80px);
+    }
+
+    @media (max-width: 900px) {
+      .main-container { grid-template-columns: 1fr; }
+    }
+
+    /* FORM PANEL */
+    .form-panel {
+      padding: 2rem;
+      background: rgba(22, 33, 62, 0.3);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+    }
+
+    .form-section { margin-bottom: 2rem; }
+    .form-section h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #4ade80; }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #e8e8e8; }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #e8e8e8;
+      font-family: inherit;
+    }
+
+    .form-control:focus { outline: none; border-color: #4ade80; box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2); }
+    textarea.form-control { min-height: 120px; resize: vertical; }
+
+    .color-input { display: grid; grid-template-columns: 1fr 60px; gap: 0.5rem; align-items: center; }
+    .color-picker { width: 60px; height: 40px; border: none; border-radius: 6px; cursor: pointer; }
+
+    .generate-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      color: white;
+      border: 2px solid #4ade80;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 1rem;
+    }
+
+    .generate-btn:hover:not(:disabled) { background: linear-gradient(135deg, #4ade80, #3b82f6); transform: translateY(-2px); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* PREVIEW PANEL */
+    .preview-panel {
+      background: #111827;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      padding: 1rem 2rem;
+      background: rgba(17, 24, 39, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slide-counter { font-weight: 500; color: #9ca3af; }
+    .nav-controls { display: flex; gap: 0.5rem; }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #e8e8e8;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .preview-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    .slide-viewer {
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide { width: 100%; height: 100%; display: none; position: absolute; top: 0; left: 0; }
+    .slide.active { display: block; }
+
+    .placeholder {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .placeholder-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+    .error-message { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    .success-message { background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); color: #86efac; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+
+    /* === SLIDE STYLES (inside viewer) === */
+    .slide .slidev-layout,
+    .slide.slidev-layout {
+      font-family: var(--sf-font);
+      color: var(--sf-text-dark);
+      background: var(--sf-bg);
+      padding: 2.5rem 3.5rem;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .slide h1 { font-family: var(--sf-font-heading); font-weight: 700; font-size: 2.2rem; line-height: 1.1; color: var(--sf-primary); margin-bottom: 1rem; }
+    .slide h2 { font-family: var(--sf-font-heading); font-weight: 600; font-size: 1.5rem; color: var(--sf-secondary); margin-bottom: 0.75rem; }
+    .slide p, .slide li { font-size: 1rem; line-height: 1.6; color: var(--sf-text-dark); }
+
+    .slide.layout-cover, .slide .layout-cover {
+      display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+      background: linear-gradient(135deg, var(--sf-primary) 0%, var(--sf-secondary) 100%);
+      color: var(--sf-text); padding: 3rem 5rem; height: 100%;
+    }
+    .slide.layout-cover h1, .layout-cover h1 { color: var(--sf-text); font-size: 2.8rem; margin-bottom: 0.5rem; }
+    .slide.layout-cover h2, .layout-cover h2 { color: rgba(255,255,255,0.8); font-weight: 400; font-size: 1.3rem; }
+
+    .slide.layout-section, .slide .layout-section {
+      display: flex; align-items: center; justify-content: center;
+      background: var(--sf-primary); text-align: center; height: 100%;
+    }
+    .layout-section h1 { color: var(--sf-text); font-size: 2.5rem; }
+
+    .slide.layout-stats, .slide .layout-stats {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 2.5rem 3.5rem; height: 100%; background: white;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2rem; margin-top: 2rem; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--sf-primary); line-height: 1; }
+    .stat-label { font-size: 0.9rem; color: var(--sf-text-dark); opacity: 0.7; margin-top: 0.5rem; }
+
+    .slide.layout-quote, .slide .layout-quote {
+      display: flex; align-items: center; justify-content: center;
+      padding: 4rem 5rem; height: 100%; background: white;
+    }
+    .layout-quote blockquote {
+      font-size: 1.5rem; font-style: italic; line-height: 1.5; color: var(--sf-primary);
+      border-left: 4px solid var(--sf-accent); padding-left: 2rem;
+    }
+
+    .slide.layout-two-cols, .slide .layout-two-cols {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: center;
+      padding: 2.5rem 3.5rem; height: 100%; background: white;
+    }
+
+    .slide.layout-image-right, .slide .layout-image-right {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0; height: 100%; background: white;
+    }
+    .layout-image-right .content { padding: 2.5rem 3rem; display: flex; flex-direction: column; justify-content: center; }
+    .layout-image-right .image { background-size: cover; background-position: center; }
+
+    .slide.layout-end, .slide .layout-end {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--sf-primary) 0%, var(--sf-secondary) 100%);
+      color: var(--sf-text); text-align: center; height: 100%;
+    }
+    .layout-end h1 { color: var(--sf-text); font-size: 2.5rem; }
+    .layout-end p { color: rgba(255,255,255,0.7); font-size: 1.1rem; }
+
+    .slide ul { list-style: none; padding: 0; }
+    .slide ul li { position: relative; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    .slide ul li::before { content: ''; position: absolute; left: 0; top: 0.5rem; width: 8px; height: 8px; border-radius: 50%; background: var(--sf-accent); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>SlideForge</h1>
+    <button id="exportBtn" class="export-btn">Exporter PDF</button>
+  </header>
+
+  <div class="main-container">
+    <div class="form-panel">
+      <form id="slideForm">
+        <div class="form-section">
+          <h3>Contenu</h3>
+          <div class="form-group">
+            <label for="content">Texte de la presentation</label>
+            <textarea id="content" class="form-control" placeholder="Decrivez votre presentation : points cles, objectifs, donnees importantes..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Identite visuelle</h3>
+          <div class="form-group">
+            <label for="company">Nom de l'entreprise</label>
+            <input type="text" id="company" class="form-control" placeholder="Pixel Drop">
+          </div>
+          <div class="form-group">
+            <label for="logo">URL du logo</label>
+            <input type="url" id="logo" class="form-control" placeholder="https://exemple.com/logo.png">
+          </div>
+          <div class="form-group">
+            <label for="primaryColor">Couleur primaire</label>
+            <div class="color-input">
+              <input type="text" id="primaryColorText" class="form-control" value="#1a1a2e">
+              <input type="color" id="primaryColor" class="color-picker" value="#1a1a2e">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="secondaryColor">Couleur secondaire</label>
+            <div class="color-input">
+              <input type="text" id="secondaryColorText" class="form-control" value="#16213e">
+              <input type="color" id="secondaryColor" class="color-picker" value="#16213e">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="font">Police</label>
+            <select id="font" class="form-control">
+              <option value="Inter">Inter (moderne)</option>
+              <option value="Arial">Arial (classique)</option>
+              <option value="Roboto">Roboto (tech)</option>
+              <option value="Montserrat">Montserrat (elegant)</option>
+              <option value="Open Sans">Open Sans (lisible)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Style</h3>
+          <div class="form-group">
+            <label for="tone">Ton</label>
+            <select id="tone" class="form-control">
+              <option value="professionnel">Professionnel</option>
+              <option value="corporate">Corporate</option>
+              <option value="startup">Startup</option>
+              <option value="creatif">Creatif</option>
+              <option value="decontracte">Decontracte</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" id="generateBtn" class="generate-btn">Generer la presentation</button>
+      </form>
+      <div id="statusMessage"></div>
+    </div>
+
+    <div class="preview-panel">
+      <div class="preview-header">
+        <div class="slide-counter"><span id="slideNumber">-</span> / <span id="totalSlides">-</span></div>
+        <div class="nav-controls">
+          <button id="prevBtn" class="nav-btn" disabled>&#8592; Precedent</button>
+          <button id="nextBtn" class="nav-btn" disabled>Suivant &#8594;</button>
+        </div>
+      </div>
+      <div class="preview-container">
+        <div class="slide-viewer">
+          <div class="placeholder">
+            <div class="placeholder-icon">&#127912;</div>
+            <h2>Pret a creer ?</h2>
+            <p>Remplissez le formulaire et cliquez sur "Generer"</p>
+          </div>
+          <div id="slidesContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API key from URL param or localStorage
+    const params = new URLSearchParams(window.location.search);
+    let GEMINI_API_KEY = params.get('key') || localStorage.getItem('sf_gemini_key') || '';
+    if (GEMINI_API_KEY) localStorage.setItem('sf_gemini_key', GEMINI_API_KEY);
+    if (!GEMINI_API_KEY) {
+      GEMINI_API_KEY = prompt('Entrez votre cle API Gemini :');
+      if (GEMINI_API_KEY) localStorage.setItem('sf_gemini_key', GEMINI_API_KEY);
+    }
+    const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+    let slides = [];
+    let currentSlide = 0;
+    let currentBrandKit = {};
+
+    const form = document.getElementById('slideForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const slidesContainer = document.getElementById('slidesContainer');
+    const slideNumber = document.getElementById('slideNumber');
+    const totalSlides = document.getElementById('totalSlides');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // Color sync
+    document.getElementById('primaryColor').addEventListener('input', e => document.getElementById('primaryColorText').value = e.target.value);
+    document.getElementById('primaryColorText').addEventListener('input', e => { if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('primaryColor').value = e.target.value; });
+    document.getElementById('secondaryColor').addEventListener('input', e => document.getElementById('secondaryColorText').value = e.target.value);
+    document.getElementById('secondaryColorText').addEventListener('input', e => { if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) document.getElementById('secondaryColor').value = e.target.value; });
+
+    function buildPrompt(content, brandKit) {
+      return `Tu es un expert en design de presentations. Genere des slides HTML professionnelles.
+
+LAYOUTS DISPONIBLES (utilise ces classes CSS exactes) :
+
+1. Cover : <div class="slide layout-cover"><h1>Titre</h1><h2>Sous-titre</h2></div>
+2. Section : <div class="slide layout-section"><h1>Titre section</h1></div>
+3. Default : <div class="slide slidev-layout"><h1>Titre</h1><ul><li>Point 1</li></ul></div>
+4. Two cols : <div class="slide layout-two-cols"><div><h2>Gauche</h2><ul><li>...</li></ul></div><div><h2>Droite</h2><ul><li>...</li></ul></div></div>
+5. Stats : <div class="slide layout-stats"><h1>Chiffres</h1><div class="stats-grid"><div class="stat"><div class="stat-value">42%</div><div class="stat-label">Label</div></div></div></div>
+6. Quote : <div class="slide layout-quote"><blockquote>"Citation"</blockquote></div>
+7. End : <div class="slide layout-end"><h1>Merci</h1><p>contact@entreprise.com</p></div>
+
+REGLES :
+- Slide 1 = TOUJOURS cover
+- Derniere slide = TOUJOURS end
+- MAX 6 lignes par slide
+- UNE idee par slide
+- Alterner les layouts
+- Genere UNIQUEMENT le HTML des slides (pas de page, pas de style, pas de code fence)
+- Commence directement par <div class="slide
+
+CONTENU : ${content}
+ENTREPRISE : ${brandKit.company || 'Entreprise'}
+TON : ${brandKit.tone || 'professionnel'}`;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const content = document.getElementById('content').value;
+      if (!content.trim()) { showMessage('Saisissez du contenu.', 'error'); return; }
+
+      currentBrandKit = {
+        company: document.getElementById('company').value || 'Entreprise',
+        logo: document.getElementById('logo').value,
+        primaryColor: document.getElementById('primaryColor').value,
+        secondaryColor: document.getElementById('secondaryColor').value,
+        font: document.getElementById('font').value,
+        tone: document.getElementById('tone').value
+      };
+
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="spinner"></span>Generation...';
+      showMessage('Appel Gemini en cours...', 'info');
+
+      try {
+        const resp = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: buildPrompt(content, currentBrandKit) }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
+          })
+        });
+
+        if (!resp.ok) throw new Error(`Gemini API error ${resp.status}`);
+        const data = await resp.json();
+        let html = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!html) throw new Error('Pas de contenu retourne');
+
+        // Clean code fences if present
+        const match = html.match(/```html\n([\s\S]*?)```/);
+        if (match) html = match[1];
+        html = html.replace(/```/g, '').trim();
+
+        displaySlides(html);
+        showMessage('Slides generees !', 'success');
+        exportBtn.classList.add('enabled');
+      } catch (err) {
+        console.error(err);
+        showMessage('Erreur : ' + err.message, 'error');
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = 'Generer la presentation';
+      }
+    });
+
+    function displaySlides(slidesHtml) {
+      // Inject brand CSS vars
+      document.documentElement.style.setProperty('--brand-primary', currentBrandKit.primaryColor);
+      document.documentElement.style.setProperty('--brand-secondary', currentBrandKit.secondaryColor);
+      document.documentElement.style.setProperty('--brand-font', `'${currentBrandKit.font}', sans-serif`);
+      document.documentElement.style.setProperty('--brand-font-heading', `'${currentBrandKit.font}', sans-serif`);
+
+      const placeholder = document.querySelector('.placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+
+      slidesContainer.innerHTML = slidesHtml;
+      slidesContainer.style.display = 'block';
+      slides = Array.from(slidesContainer.querySelectorAll('.slide'));
+
+      if (slides.length === 0) { showMessage('Aucune slide.', 'error'); return; }
+
+      currentSlide = 0;
+      totalSlides.textContent = slides.length;
+      updateSlideDisplay();
+      updateNavigation();
+    }
+
+    function updateSlideDisplay() {
+      slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+      slideNumber.textContent = currentSlide + 1;
+    }
+
+    function updateNavigation() {
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === slides.length - 1;
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentSlide > 0) { currentSlide--; updateSlideDisplay(); updateNavigation(); } });
+    nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) { currentSlide++; updateSlideDisplay(); updateNavigation(); } });
+
+    document.addEventListener('keydown', (e) => {
+      if (!slides.length) return;
+      if (e.key === 'ArrowLeft') prevBtn.click();
+      if (e.key === 'ArrowRight') nextBtn.click();
+    });
+
+    function showMessage(text, type) {
+      const cls = type === 'error' ? 'error-message' : type === 'success' ? 'success-message' : '';
+      statusMessage.innerHTML = `<div class="${cls}">${text}</div>`;
+      if (type === 'success') setTimeout(() => statusMessage.innerHTML = '', 5000);
+    }
+  </script>
+</body>
+</html>
