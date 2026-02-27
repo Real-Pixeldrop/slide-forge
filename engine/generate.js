@@ -32,89 +32,8 @@ function buildPrompt(content, brandKit) {
  * Appelle Gemini pour structurer le contenu en slides
  */
 async function generateWithGemini(prompt, apiKey) {
-  // Pour le MVP, on utilise un template statique pour tester
-  // TODO: Remplacer par vraie API Gemini quand on aura la clé
-  console.log('Utilisation du template de test (pas de vraie API Gemini pour le moment)');
+  console.log('Appel Gemini API...');
   
-  // Template de slides de test basé sur le prompt
-  const testSlides = `
-<div class="slide layout-cover">
-  <h1>Présentation TechForge</h1>
-  <h2>Résultats Q4 & Expansion Européenne</h2>
-</div>
-
-<div class="slide slidev-layout">
-  <h1>Agenda</h1>
-  <ul>
-    <li>Résultats de performance</li>
-    <li>Croissance client</li>
-    <li>Innovation IA</li>
-    <li>Objectifs 2024</li>
-  </ul>
-</div>
-
-<div class="slide layout-stats">
-  <h1>Résultats Q4</h1>
-  <div class="stats-grid">
-    <div class="stat">
-      <div class="stat-value">+40%</div>
-      <div class="stat-label">Trafic</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value">1500</div>
-      <div class="stat-label">Nouveaux clients</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value">+25%</div>
-      <div class="stat-label">Conversion</div>
-    </div>
-  </div>
-</div>
-
-<div class="slide layout-two-cols">
-  <div>
-    <h2>Innovation</h2>
-    <ul>
-      <li>Interface mobile optimisée</li>
-      <li>IA pour recommandations</li>
-      <li>UX repensée</li>
-    </ul>
-  </div>
-  <div>
-    <h2>Performance</h2>
-    <ul>
-      <li>Temps de chargement -50%</li>
-      <li>Taux de rebond -30%</li>
-      <li>Satisfaction client 95%</li>
-    </ul>
-  </div>
-</div>
-
-<div class="slide layout-quote">
-  <blockquote>
-    "L'innovation n'est pas seulement technique, elle est aussi humaine"
-  </blockquote>
-</div>
-
-<div class="slide slidev-layout">
-  <h1>Objectifs 2024</h1>
-  <ul>
-    <li>Expansion européenne</li>
-    <li>Croissance 200% prévue</li>
-    <li>3 nouveaux marchés</li>
-    <li>Équipe internationale</li>
-  </ul>
-</div>
-
-<div class="slide layout-end">
-  <h1>Merci</h1>
-  <p>Questions & Discussion</p>
-  <p>contact@techforge-solutions.com</p>
-</div>
-  `;
-  
-  // TODO: Vraie API Gemini
-  /*
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
@@ -130,6 +49,11 @@ async function generateWithGemini(prompt, apiKey) {
     }
   );
   
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Gemini API error ${response.status}: ${err}`);
+  }
+  
   const data = await response.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   
@@ -140,9 +64,6 @@ async function generateWithGemini(prompt, apiKey) {
   // Extraire le HTML entre les balises code si présent
   const htmlMatch = text.match(/```html\n([\s\S]*?)```/);
   return htmlMatch ? htmlMatch[1] : text;
-  */
-  
-  return testSlides.trim();
 }
 
 /**
