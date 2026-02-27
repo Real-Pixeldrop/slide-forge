@@ -1,0 +1,238 @@
+/* SlideForge - Base Theme
+   Variables dynamiques injectées depuis le brand kit */
+
+:root {
+  --sf-primary: var(--brand-primary, #1a1a2e);
+  --sf-secondary: var(--brand-secondary, #16213e);
+  --sf-accent: var(--brand-accent, #0f3460);
+  --sf-text: var(--brand-text, #e8e8e8);
+  --sf-text-dark: var(--brand-text-dark, #1a1a2e);
+  --sf-bg: var(--brand-bg, #ffffff);
+  --sf-bg-dark: var(--brand-bg-dark, #0a0a1a);
+  --sf-font: var(--brand-font, 'Inter', sans-serif);
+  --sf-font-heading: var(--brand-font-heading, var(--sf-font));
+  --sf-radius: 8px;
+}
+
+/* Slides */
+.slidev-layout {
+  font-family: var(--sf-font);
+  color: var(--sf-text-dark);
+  background: var(--sf-bg);
+  padding: 2.5rem 3.5rem;
+}
+
+/* Headings */
+h1 {
+  font-family: var(--sf-font-heading);
+  font-weight: 700;
+  font-size: 2.8rem;
+  line-height: 1.1;
+  color: var(--sf-primary);
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-family: var(--sf-font-heading);
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: var(--sf-secondary);
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: var(--sf-accent);
+}
+
+/* Body text */
+p, li {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--sf-text-dark);
+}
+
+/* Cover layout */
+.layout-cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, var(--sf-primary) 0%, var(--sf-secondary) 100%);
+  color: var(--sf-text);
+  padding: 3rem 5rem;
+}
+
+.layout-cover h1 {
+  color: var(--sf-text);
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.layout-cover h2 {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  font-size: 1.5rem;
+}
+
+.layout-cover .logo {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 3.5rem;
+  height: 48px;
+  opacity: 0.9;
+}
+
+/* Section layout */
+.layout-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sf-primary);
+  text-align: center;
+}
+
+.layout-section h1 {
+  color: var(--sf-text);
+  font-size: 3rem;
+}
+
+/* Stats layout */
+.layout-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.layout-stats .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.layout-stats .stat {
+  text-align: center;
+}
+
+.layout-stats .stat-value {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--sf-primary);
+  line-height: 1;
+}
+
+.layout-stats .stat-label {
+  font-size: 1rem;
+  color: var(--sf-text-dark);
+  opacity: 0.7;
+  margin-top: 0.5rem;
+}
+
+/* Quote layout */
+.layout-quote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 6rem;
+}
+
+.layout-quote blockquote {
+  font-size: 1.8rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--sf-primary);
+  border-left: 4px solid var(--sf-accent);
+  padding-left: 2rem;
+}
+
+/* Two columns */
+.layout-two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+/* Image right/left */
+.layout-image-right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.layout-image-right .content {
+  padding: 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.layout-image-right .image {
+  background-size: cover;
+  background-position: center;
+  border-radius: 0 0 0 var(--sf-radius);
+}
+
+/* End layout */
+.layout-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--sf-primary) 0%, var(--sf-secondary) 100%);
+  color: var(--sf-text);
+  text-align: center;
+}
+
+.layout-end h1 {
+  color: var(--sf-text);
+  font-size: 3rem;
+}
+
+.layout-end p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+}
+
+/* Bullets styling */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sf-accent);
+}
+
+/* Strong in stats */
+strong {
+  color: var(--sf-primary);
+  font-weight: 800;
+}
+
+/* Slide number */
+.slidev-page-number {
+  color: var(--sf-primary);
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+/* Transitions */
+.slidev-vclick-target {
+  transition: all 0.4s ease;
+}
